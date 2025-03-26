@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <title>地政事務所預約系統</title>
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      html,
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f9f9f9;
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        padding: 1em;
+      }
+      .container {
+        background-color: #ffffff;
+        padding: 2em;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        max-width: 500px;
+        width: 100%;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.8s ease-out forwards;
+        text-align: center;
+      }
+      @keyframes fadeInUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      h2 {
+        color: #333;
+        opacity: 0;
+        animation: fadeIn 1s ease-out 0.3s forwards;
+      }
+      @keyframes fadeIn {
+        to {
+          opacity: 1;
+        }
+      }
+      label {
+        display: block;
+        margin-bottom: 1em;
+        color: #444;
+        text-align: left;
+        opacity: 0;
+        transform: translateY(10px);
+        animation: fadeInUp 0.5s ease-out forwards;
+      }
+      label:nth-of-type(1) {
+        animation-delay: 0.4s;
+      }
+      label:nth-of-type(2) {
+        animation-delay: 0.5s;
+      }
+      label:nth-of-type(3) {
+        animation-delay: 0.6s;
+      }
+      label:nth-of-type(4) {
+        animation-delay: 0.7s;
+      }
+      label:nth-of-type(5) {
+        animation-delay: 0.8s;
+      }
+
+      input,
+      select,
+      button {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-sizing: border-box;
+        font-size: 1em;
+      }
+      button {
+        background-color: #007bff;
+        color: #fff;
+        font-weight: bold;
+        border: none;
+        margin-top: 1em;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        opacity: 0;
+        animation: fadeIn 0.8s ease-out 1s forwards;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      #status {
+        margin-top: 1em;
+        font-size: 0.9em;
+        color: #555;
+      }
+      .spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #007bff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        vertical-align: middle;
+        margin-left: 8px;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      @media screen and (max-width: 600px) {
+        .container {
+          padding: 1.5em;
+        }
+        input,
+        select,
+        button {
+          font-size: 1rem;
+          padding: 10px;
+        }
+        h2 {
+          font-size: 1.4em;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>地政事務所預約表單</h2>
+      <form id="bookingForm">
+        <label>姓名：<input type="text" id="name" required /></label>
+        <label
+          >預約項目：
+          <select id="type" required>
+            <option value="土地登記">土地登記</option>
+            <option value="地籍圖謄本">地籍圖謄本</option>
+            <option value="建物測量">建物測量</option>
+            <option value="其他">其他</option>
+          </select>
+        </label>
+        <label>預約日期：<input type="date" id="date" required /></label>
+        <label>預約時間：<input type="time" id="time" required /></label>
+        <label
+          >上傳相關檔案（如身分證、委託書）：<input
+            type="file"
+            id="fileUpload"
+            required
+        /></label>
+        <button type="submit" id="submitBtn">送出預約</button>
+        <div id="status"></div>
+      </form>
+    </div>
+
+    <script>
+      let userId = null;
+
+      async function initLiff() {
+        await liff.init({ liffId: "YOUR_LIFF_ID" });
+        if (!liff.isLoggedIn()) liff.login();
+        const profile = await liff.getProfile();
+        userId = profile.userId;
+      }
+
+      initLiff();
+
+      document
+        .getElementById("bookingForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const name = document.getElementById("name").value;
+          const type = document.getElementById("type").value;
+          const date = document.getElementById("date").value;
+          const time = document.getElementById("time").value;
+          const fileInput = document.getElementById("fileUpload");
+          const statusDiv = document.getElementById("status");
+          const submitBtn = document.getElementById("submitBtn");
+
+          if (fileInput.files.length === 0) {
+            alert("請選擇一個檔案");
+            return;
+          }
+
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = "送出中 <span class='spinner'></span>";
+          statusDiv.innerText = "📤 正在送出預約資料，請稍候...";
+
+          const file = fileInput.files[0];
+          const reader = new FileReader();
+
+          reader.onload = async function () {
+            const base64File = reader.result.split(",")[1];
+
+            const payload = new URLSearchParams();
+            payload.append("name", name);
+            payload.append("type", type);
+            payload.append("date", date);
+            payload.append("time", time);
+            payload.append("userId", userId);
+            payload.append("filename", file.name);
+            payload.append("filetype", file.type);
+            payload.append("file", base64File);
+
+            try {
+              const res = await fetch(
+                "https://script.google.com/macros/s/AKfycbzDEEcAMglYrQhdN0dA1W98m4c0npaT2GPKQuDkm13sRvOVTYx-r8AHVrRl4FFk135Z/exec",
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                  },
+                  body: payload.toString(),
+                }
+              );
+
+              statusDiv.innerText = "";
+              submitBtn.disabled = false;
+              submitBtn.textContent = "送出預約";
+
+              if (res.ok) {
+                alert("✅ 預約成功！");
+                document.getElementById("bookingForm").reset();
+              } else {
+                alert("❌ 預約失敗，請稍後再試。");
+              }
+            } catch (error) {
+              console.error("發生錯誤：", error);
+              statusDiv.innerText = "";
+              submitBtn.disabled = false;
+              submitBtn.textContent = "送出預約";
+              alert("❌ 系統錯誤，請稍後再試。");
+            }
+          };
+
+          reader.readAsDataURL(file);
+        });
+    </script>
+  </body>
+</html>
