@@ -1,3 +1,6 @@
+// 📁 專案結構說明 // frontend/ // └─ index.html ← 可部署到
+Netlify（含預約與檔案上傳） // === frontend/index.html ===
+
 <!DOCTYPE html>
 <html lang="zh-TW">
   <head>
@@ -9,18 +12,17 @@
       html,
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f9f9f9;
-        height: 100%;
+        background: linear-gradient(to bottom, #e8eff9, #d7e3f5);
         margin: 0;
-      }
-      body {
         display: flex;
         justify-content: center;
         align-items: center;
         flex-direction: column;
         padding: 1em;
       }
+
       .container {
+        margin-top: 5em;
         background-color: #ffffff;
         padding: 2em;
         border-radius: 12px;
@@ -31,6 +33,7 @@
         transform: translateY(20px);
         animation: fadeInUp 0.8s ease-out forwards;
         text-align: center;
+        margin-bottom: 2em;
       }
       @keyframes fadeInUp {
         to {
@@ -42,6 +45,7 @@
         color: #333;
         opacity: 0;
         animation: fadeIn 1s ease-out 0.3s forwards;
+        margin-bottom: 1em;
       }
       @keyframes fadeIn {
         to {
@@ -121,6 +125,13 @@
           transform: rotate(360deg);
         }
       }
+      footer {
+        text-align: center;
+        font-size: 0.9em;
+        color: #666;
+        padding: 2em 1em;
+        line-height: 1.6;
+      }
       @media screen and (max-width: 600px) {
         .container {
           padding: 1.5em;
@@ -163,6 +174,15 @@
         <div id="status"></div>
       </form>
     </div>
+
+    <footer>
+      Copyright © 2023 桃園市蘆竹地政事務所版權所有<br />
+      地址：338028 桃園市蘆竹區長安路2段236號1、2、3樓<br />
+      服務時間：08:00 至 17:00 (午間不打烊)<br />
+      電話：(03)352-5337(代表號)<br />
+      本所意見信箱:
+      <a href="mailto:ljland@mail.tyland.gov.tw">ljland@mail.tyland.gov.tw</a>
+    </footer>
 
     <script>
       let userId = null;
