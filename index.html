@@ -73,7 +73,6 @@
       label:nth-of-type(5) {
         animation-delay: 0.8s;
       }
-
       input,
       select,
       button {
@@ -129,6 +128,11 @@
         padding: 2em 1em;
         line-height: 1.6;
       }
+      #liffStatus {
+        font-size: 0.9em;
+        color: #007bff;
+        margin-bottom: 1em;
+      }
       @media screen and (max-width: 600px) {
         .container {
           padding: 1.5em;
@@ -148,15 +152,19 @@
   <body>
     <div class="container">
       <h2>地政事務所預約表單</h2>
+      <div id="liffStatus">🔄 正在初始化 LIFF...</div>
       <form id="bookingForm">
         <label>姓名：<input type="text" id="name" required /></label>
+        <label>電話：<input type="text" id="phone" required /></label>
         <label
           >預約項目：
           <select id="type" required>
-            <option value="土地登記">土地登記</option>
-            <option value="地籍圖謄本">地籍圖謄本</option>
-            <option value="建物測量">建物測量</option>
-            <option value="其他">其他</option>
+            <option value="律師法律諮詢預約">律師法律諮詢預約</option>
+            <option value="大宗第一類謄本預約申請">
+              大宗第一類謄本預約申請
+            </option>
+            <option value="三類謄本預約申請">三類謄本預約申請</option>
+            <option value="土地複丈成果圖補發">土地複丈成果圖補發</option>
           </select>
         </label>
         <label>預約日期：<input type="date" id="date" required /></label>
@@ -185,10 +193,22 @@
       let userId = null;
 
       async function initLiff() {
-        await liff.init({ liffId: "YOUR_LIFF_ID" });
-        if (!liff.isLoggedIn()) liff.login();
-        const profile = await liff.getProfile();
-        userId = profile.userId;
+        try {
+          await liff.init({ liffId: "YOUR_LIFF_ID" }); // 替換成你自己的 LIFF ID
+          if (!liff.isLoggedIn()) {
+            liff.login();
+            return;
+          }
+          const profile = await liff.getProfile();
+          userId = profile.userId;
+          document.getElementById(
+            "liffStatus"
+          ).innerText = `✅ 已登入，userId: ${userId}`;
+        } catch (err) {
+          console.error("LIFF 初始化錯誤：", err);
+          document.getElementById("liffStatus").innerText =
+            "❌ LIFF 初始化失敗";
+        }
       }
 
       initLiff();
@@ -199,6 +219,7 @@
           e.preventDefault();
 
           const name = document.getElementById("name").value;
+          const phone = document.getElementById("phone").value;
           const type = document.getElementById("type").value;
           const date = document.getElementById("date").value;
           const time = document.getElementById("time").value;
@@ -223,6 +244,7 @@
 
             const payload = new URLSearchParams();
             payload.append("name", name);
+            payload.append("phone", phone);
             payload.append("type", type);
             payload.append("date", date);
             payload.append("time", time);
