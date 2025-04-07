@@ -203,11 +203,11 @@
           userId = profile.userId;
           document.getElementById(
             "liffStatus"
-          ).innerText = `✅ 已登入，userId: ${userId}`;
+          ).innerText = `✅ 已登入，報名成功會用LINE通知您`;
         } catch (err) {
           console.error("LIFF 初始化錯誤：", err);
           document.getElementById("liffStatus").innerText =
-            "❌ LIFF 初始化失敗";
+            "♦️本頁可登記預約，但請用LINE APP 打開，才可收到提醒通知";
         }
       }
 
