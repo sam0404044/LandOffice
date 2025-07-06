@@ -1,0 +1,88 @@
+/* 全頁撐開設定 */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+    background: linear-gradient(to bottom right, #e0f7fa, #ffffff);
+  }
+  
+
+  
+  /* wrapper 包住整頁內容，footer 可推到底 */
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  /* 頁首 */
+  header {
+    background-color: #4a90e2;
+    color: white;
+    text-align: center;
+    padding: 1.2rem;
+    font-size: 1.5rem;
+  }
+  
+  /* 按鈕容器 */
+  .button-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 手機：2欄 */
+    gap: 1rem;
+    padding: 1rem;
+    flex-grow: 1;
+  
+    align-items: center;
+  }
+  
+  /* RWD 電腦/平板改為 4 欄 */
+  @media (min-width: 768px) {
+    .button-grid {
+      grid-template-columns: repeat(4, 1fr); /* 電腦：4欄 */
+    }
+  }
+  
+  /* 單個按鈕 */
+  .button-box {
+    background-color: #ffcc70;
+    border-radius: 10px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #333;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    cursor: pointer;
+    padding: 0.5rem;
+    word-break: break-word;
+    transition: background-color 0.3s;
+  }
+  
+  .button-box:hover {
+    background-color: #ffd98a;
+  }
+  
+  /* 頁腳 */
+  footer {
+    background-color: #333;
+    color: white;
+    padding: 1.5rem 1rem;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+  
+  .footer-info {
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+  
+  .footer-info a {
+    color: #00e5ff;
+    text-decoration: underline;
+  }
+  
