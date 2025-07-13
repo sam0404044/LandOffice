@@ -92,3 +92,10 @@ body {
     text-decoration: underline;
   }
   
+
+  .time-warning {
+    margin-top: 8px;
+    font-size: 14px;
+    color: red;
+  }
+  
