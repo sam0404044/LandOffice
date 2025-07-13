@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>第三類謄本預約申請-申請表格</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <form id="form3" enctype="multipart/form-data">
+    <h2>第三類謄本預約申請-申請表格</h2>
+  
+    <label for="name">申請人姓名：</label>
+    <input type="text" id="name" name="name" required>
+  
+    <label for="phone">連絡電話：</label>
+    <input type="tel" id="phone" name="phone" required>
+  
+    <label for="upload1">地籍謄本及相關資料申請書上傳：</label>
+    <input type="file" id="upload1" name="upload1" accept=".pdf,.jpg,.png" required>
+  
+    <label for="upload2">身分證明文件上傳：</label>
+    <input type="file" id="upload2" name="upload2" accept=".pdf,.jpg,.png" required>
+  
+    <div class="checkbox-group">
+      <label>身分別：</label>
+      <label><input type="radio" name="identity" value="申請人" required> 申請人</label>
+      <label><input type="radio" name="identity" value="代理人"> 代理人</label>
+    </div>
+  
+    <label for="upload3">其他依規定應檢附文件上傳：</label>
+    <input type="file" id="upload3" name="upload3" accept=".pdf,.jpg,.png">
+  
+    <div class="info">
+      <strong>營業時間：</strong> 星期一～五　08:00–17:00
+    </div>
+  
+    <label for="date">申請日期：</label>
+    <input type="date" id="date" name="date" required>
+  
+    <label for="time">申請時間：</label>
+    <input type="time" id="time" name="time" required>
+    <div id="timeError" class="error-msg"></div>
+  
+    <button type="submit">提交申請</button>
+  </form>
+  
+
+  <script src="script.js"></script>
+
+</body>
+</html>

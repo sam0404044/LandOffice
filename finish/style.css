@@ -1,0 +1,67 @@
+
+   /* 頁腳 */
+   footer {
+    background-color: #333;
+    color: white;
+    padding: 1.5rem 1rem;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+  
+  .footer-info {
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+  
+  .footer-info a {
+    color: #00e5ff;
+    text-decoration: underline;
+  }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background-color: #f9f9f9;
+    padding: 2rem;
+    line-height: 1.8;
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  
+  h1 {
+    color: #b30000;
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  h2 {
+    text-align: center;
+    margin-top: 0;
+    font-weight: normal;
+    color: #333;
+  }
+  
+  ul {
+    padding-left: 1.5rem;
+  }
+  
+  li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .bank-info {
+    background: #f1f1f1;
+    padding: 1rem;
+    border-left: 5px solid #999;
+    margin-top: 1rem;
+  }
+
+  
