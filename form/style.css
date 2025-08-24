@@ -99,3 +99,13 @@ body {
     color: red;
   }
   
+/* 放進你的 style.css */
+textarea{
+  width: 100%;              /* 滿容器 */
+  min-height: 180px;        /* 比 rows 大一點好打字 */
+  padding: 12px;
+  font-size: 1rem;
+  line-height: 1.5;
+  box-sizing: border-box;   /* 含 padding 不超出寬度 */
+  resize: vertical;         /* 只允許上下拉伸 */
+}

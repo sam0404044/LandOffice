@@ -14,7 +14,7 @@ body {
   header {
     text-align: center;
     padding: 2rem 1rem 1rem;
-    font-size: 1.6rem;
+    font-size: 2.0rem;
     font-weight: bold;
   }
 
@@ -38,19 +38,19 @@ body {
   }
 
   .notice-box h2 {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     margin-bottom: 1rem;
   }
 
   .notice-box p {
-    font-size: 1rem;
+    font-size: 1.5rem;
     line-height: 1.6;
   }
 
   .confirm-button {
     margin-top: 2rem;
     padding: 0.8rem 2rem;
-    font-size: 1rem;
+    font-size: 1.5rem;
     background-color: #4a90e2;
     color: white;
     border: none;
