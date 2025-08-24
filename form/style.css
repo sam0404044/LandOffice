@@ -109,3 +109,4 @@ textarea{
   box-sizing: border-box;   /* 含 padding 不超出寬度 */
   resize: vertical;         /* 只允許上下拉伸 */
 }
+.submit-status { color: #444; font-size: .95rem; }

@@ -1,3 +1,4 @@
+// script.js
 document.addEventListener('DOMContentLoaded', function () {
   // === 你的 GAS Web App /exec ===
   const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxam0tMYFh1LAF1kRssm_-6-DaTQ7ave0_sIJk8hBaUijTFlqA9QxvsP3aMa7oZA4pk/exec';
@@ -129,11 +130,38 @@ document.addEventListener('DOMContentLoaded', function () {
     if (dateInput) ['input','change','blur'].forEach(evt => dateInput.addEventListener(evt, validateDateOnly));
     if (timeInput) ['input','change','blur'].forEach(evt => timeInput.addEventListener(evt, validateDateTime));
 
-    // 送出：→ 轉 Base64 → x-www-form-urlencoded → 只在成功時跳完成頁
+    // 送出：→ 轉 Base64 → x-www-form-urlencoded → 只在成功時跳完成頁 + 動態狀態提示
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
 
       if (ENABLE_DATE_TIME_VALIDATION && (dateInput || timeInput) && !validateDateTime()) return;
+
+      // 取得按鈕 & 狀態容器（沒有就動態建立）
+      const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
+      let statusEl = form.querySelector('.submit-status');
+      if (!statusEl) {
+        statusEl = document.createElement('div');
+        statusEl.className = 'submit-status';
+        statusEl.setAttribute('aria-live','polite');
+        statusEl.style.marginTop = '8px';
+        statusEl.style.color = '#444';
+        statusEl.style.fontSize = '.95rem';
+        // 放在按鈕後面
+        if (submitBtn && submitBtn.parentNode) {
+          submitBtn.insertAdjacentElement('afterend', statusEl);
+        } else {
+          form.appendChild(statusEl);
+        }
+      }
+
+      // 開始顯示「資料送出中…」動畫（. . . 循環）
+      if (submitBtn) submitBtn.disabled = true;
+      let dots = 0;
+      statusEl.textContent = '資料送出中';
+      const anim = setInterval(() => {
+        dots = (dots + 1) % 4; // 0~3
+        statusEl.textContent = '資料送出中' + '.'.repeat(dots);
+      }, 320);
 
       // 1) 先收集所有非檔案欄位
       const fields = {};
@@ -149,11 +177,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       });
 
-      // 2) 收集檔案欄位並轉成 base64
+      // 2) 收集檔案欄位並轉成 base64（若頁面沒有檔案欄位，這段會跳過）
       const fileInputs = Array.from(form.querySelectorAll('input[type="file"]'));
-      // 若有 required 的檔案欄位，手動檢查（因為 noValidate=true）
       const missingRequired = fileInputs.some(fi => fi.required && (!fi.files || fi.files.length === 0));
-      if (missingRequired) { alert('請上傳必要的檔案'); return; }
+      if (missingRequired) {
+        clearInterval(anim);
+        statusEl.textContent = '請上傳必要的檔案';
+        if (submitBtn) submitBtn.disabled = false;
+        return;
+      }
 
       const base64List = []; // 每個元素：{ field, b64, name, type }
       for (const fi of fileInputs) {
@@ -185,6 +217,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         const data = await r.json().catch(() => null);
         if (r.ok && data && data.ok) {
+          clearInterval(anim);
+          statusEl.textContent = '送出成功，正在導向完成頁…';
           window.location.href = FINISH_URL;
         } else {
           throw new Error(data && data.error ? data.error : `HTTP ${r.status}`);
@@ -197,7 +231,8 @@ document.addEventListener('DOMContentLoaded', function () {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: payload.toString(),
         });
-        // 直接導向完成頁；實際是否寫入，請以試算表/Drive 為準
+        clearInterval(anim);
+        statusEl.textContent = '已送出，正在導向完成頁…';
         window.location.href = FINISH_URL;
       }
     });
