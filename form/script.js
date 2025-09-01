@@ -261,6 +261,11 @@ document.addEventListener('DOMContentLoaded', function () {
         payload.append(field + '_type', type);
       });
       payload.set('lineUserId', lineUserId); // ★ 必帶
+// ★ 新增：預約日期與時間
+if (fields.date) payload.set('reserveDate', fields.date);
+if (fields.time) payload.set('reserveTime', fields.time);
+
+
 
       // 送出
       try {
