@@ -22,13 +22,15 @@
   <script>
   const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxam0tMYFh1LAF1kRssm_-6-DaTQ7ave0_sIJk8hBaUijTFlqA9QxvsP3aMa7oZA4pk/exec';
  // === 你的 LIFF ID ===
- const LIFF_ID = '2008032262-oybPJNJN';
-    async function initLiff() {
-      await liff.init({ liffId: LIFF_ID });
-      if (!liff.isLoggedIn()) {
-        liff.login();
-      }
-    }
+  const LIFF_ID = '2008032262-oybPJNJN';
+  async function initLiff() {
+  await liff.init({ liffId: LIFF_ID });
+  if (!liff.isLoggedIn()) {
+    // 登入後回到當前頁面，而不是回到 index
+    liff.login({ redirectUri: window.location.href });
+  }
+}
+
     initLiff();
 
     document.getElementById("testForm").addEventListener("submit", async (e) => {

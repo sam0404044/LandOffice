@@ -25,9 +25,11 @@ document.addEventListener('DOMContentLoaded', function () {
   async function initLiff() {
     await liff.init({ liffId: LIFF_ID });
     if (!liff.isLoggedIn()) {
-      liff.login();
+      // 登入後回到當前頁面，而不是回到 index
+      liff.login({ redirectUri: window.location.href });
     }
   }
+  
   initLiff();
 
   // 工具：yyyy-mm-dd
