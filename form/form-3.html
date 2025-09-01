@@ -10,45 +10,97 @@
 
   <form id="form3" enctype="multipart/form-data">
     <h2>第三類謄本預約申請-申請表格</h2>
-  
-    <label for="name">申請人姓名：</label>
-    <input type="text" id="name" name="name" required>
-  
-    <label for="phone">連絡電話：</label>
-    <input type="tel" id="phone" name="phone" required>
-  
-    <label for="upload1">地籍謄本及相關資料申請書上傳：</label>
-    <input type="file" id="upload1" name="upload1" accept=".pdf,.jpg,.png" required>
-  
-    <label for="upload2">身分證明文件上傳：</label>
-    <input type="file" id="upload2" name="upload2" accept=".pdf,.jpg,.png" required>
-  
+
+    <!-- 身分別：放最前面 -->
     <div class="checkbox-group">
       <label>身分別：</label>
-      <label><input type="radio" name="identity" value="申請人" required> 申請人</label>
+      <label><input type="radio" name="identity" value="申請人" required checked> 申請人</label>
       <label><input type="radio" name="identity" value="代理人"> 代理人</label>
     </div>
-  
+
+    <!-- 姓名/電話（標題會依身分別切換） -->
+    <label for="name" id="labelName">申請人姓名：</label>
+    <input type="text" id="name" name="name" required>
+
+    <label for="phone" id="labelPhone">連絡電話：</label>
+    <input type="tel" id="phone" name="phone" required>
+
+    <!-- 代理人時才顯示：申請人姓名 -->
+    <div id="applicantBlock" style="display:none;">
+      <label for="applicantName">申請人姓名：</label>
+      <input type="text" id="applicantName" name="applicantName">
+    </div>
+
+    <!-- 檔案 1 -->
+    <label for="upload1">地籍謄本及相關資料申請書上傳：</label>
+    <input type="file" id="upload1" name="upload1" accept=".pdf,.jpg,.png" required>
+
+    <!-- 檔案 2：標題會依身分別切換，但上傳的對象固定為「申請人」 -->
+    <label for="upload2" id="labelUpload2">申請人身分證明文件上傳：</label>
+    <input type="file" id="upload2" name="upload2" accept=".pdf,.jpg,.png" required>
+
+    <!-- 檔案 3：其他文件 -->
     <label for="upload3">其他依規定應檢附文件上傳：</label>
     <input type="file" id="upload3" name="upload3" accept=".pdf,.jpg,.png">
-  
+
     <div class="info">
       <strong>營業時間：</strong> 星期一～五　08:00–17:00
     </div>
-  
+
+    <!-- 日期時間 -->
     <label for="date">申請日期：</label>
     <input type="date" id="date" name="date" required>
-  
+
     <label for="time">申請時間：</label>
     <input type="time" id="time" name="time" required>
     <div id="timeError" class="error-msg"></div>
+
     <button type="submit">提交申請</button>
     <div class="submit-status" aria-live="polite"></div>
-    
   </form>
-  
 
+  <!-- 身分別切換行為 -->
+  <script>
+    (function () {
+      const labelName    = document.getElementById('labelName');
+      const labelPhone   = document.getElementById('labelPhone');
+      const labelUpload2 = document.getElementById('labelUpload2');
+
+      const applicantBlock = document.getElementById('applicantBlock');
+      const applicantInput = document.getElementById('applicantName');
+
+      function applyIdentity(value) {
+        if (value === '代理人') {
+          labelName.textContent    = '代理人姓名：';
+          labelPhone.textContent   = '代理人連絡電話：';
+          // 證件仍為申請人的
+          labelUpload2.textContent = '申請人身分證明文件上傳：';
+
+          applicantBlock.style.display = '';
+          applicantInput.required = true;
+        } else {
+          labelName.textContent    = '申請人姓名：';
+          labelPhone.textContent   = '連絡電話：';
+          labelUpload2.textContent = '申請人身分證明文件上傳：';
+
+          applicantBlock.style.display = 'none';
+          applicantInput.required = false;
+          applicantInput.value = '';
+        }
+      }
+
+      // 初次套用
+      const checked = document.querySelector("input[name='identity']:checked");
+      applyIdentity(checked ? checked.value : '申請人');
+
+      // 監聽切換
+      document.querySelectorAll("input[name='identity']").forEach(r => {
+        r.addEventListener('change', e => applyIdentity(e.target.value));
+      });
+    })();
+  </script>
+
+  <!-- 你的共用送出邏輯（會把欄位送到 GAS 並推播訊息） -->
   <script src="script.js"></script>
-
 </body>
 </html>
