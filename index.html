@@ -37,9 +37,6 @@
     </div>
   </div>
   
-  <div>
-    <a href="./test.html">Test03</a>
-  </div>
 
   
   <footer>
@@ -69,14 +66,7 @@
       return;
     }
 
-    try {
-      const profile = await liff.getProfile();
-      const userId = profile.userId;
-      document.getElementById('line-id').textContent = "你的 LINE ID: " + userId;
-    } catch (err) {
-      document.getElementById('line-id').textContent = "無法取得 LINE ID";
-      console.error(err);
-    }
+    
   })();
 </script>
 
