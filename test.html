@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>LIFF 測試表單</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+  <h2>LIFF 測試表單</h2>
+  <p>按下按鈕後，會把你的 LINE userId 傳到 GAS，並推播「預約完成」訊息。</p>
+
+  <form id="testForm">
+    <label>姓名：
+      <input id="name" name="name" required>
+    </label>
+    <br><br>
+    <button type="submit">送出測試</button>
+  </form>
+
+  <div id="status"></div>
+
+  <script>
+    const GAS_ENDPOINT = "👉 這裡換成你的 GAS Web App /exec URL";
+    const LIFF_ID = "👉 這裡換成你的 LIFF_ID (例如 2008032262-oybPJNJN)";
+
+    async function initLiff() {
+      await liff.init({ liffId: LIFF_ID });
+      if (!liff.isLoggedIn()) {
+        liff.login();
+      }
+    }
+    initLiff();
+
+    document.getElementById("testForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      document.getElementById("status").textContent = "送出中…";
+
+      try {
+        // 抓 LINE userId
+        const profile = await liff.getProfile();
+        const userId = profile.userId;
+
+        // 組送出的資料
+        const payload = new URLSearchParams();
+        payload.set("key", "form1"); // 先用 form1 做測試
+        payload.set("name", document.getElementById("name").value);
+        payload.set("lineUserId", userId);
+
+        const res = await fetch(GAS_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: payload.toString(),
+        });
+
+        if (res.ok) {
+          document.getElementById("status").textContent = "✅ 已送出，請到 LINE 查看是否收到推播訊息";
+        } else {
+          document.getElementById("status").textContent = "❌ 送出失敗：" + res.status;
+        }
+      } catch (err) {
+        document.getElementById("status").textContent = "錯誤：" + err;
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>
