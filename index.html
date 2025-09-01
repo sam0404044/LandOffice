@@ -36,16 +36,7 @@
       法律諮詢服務
     </div>
   </div>
-  
-  <div>
-    <a href="./test.html">Test02</a>
-  </div>
-
-  <!-- 顯示 LINE ID -->
-  <div id="line-id" style="margin:20px; color:#333; font-weight:bold;">
-    讀取中…
-  </div>
-
+ 
   <footer>
     <div class="footer-info">
       <p>
@@ -73,14 +64,7 @@
       return;
     }
 
-    try {
-      const profile = await liff.getProfile();
-      const userId = profile.userId;
-      document.getElementById('line-id').textContent = "你的 LINE ID: " + userId;
-    } catch (err) {
-      document.getElementById('line-id').textContent = "無法取得 LINE ID";
-      console.error(err);
-    }
+    
   })();
 </script>
 

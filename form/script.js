@@ -1,15 +1,19 @@
+// ================================
+// form.js － 通用表單送出 + LIFF 取得 lineUserId
+// ================================
+
 document.addEventListener('DOMContentLoaded', function () {
-  // === 你的 GAS Web App /exec ===
+  // === GAS Web App /exec ===
   const GAS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxam0tMYFh1LAF1kRssm_-6-DaTQ7ave0_sIJk8hBaUijTFlqA9QxvsP3aMa7oZA4pk/exec';
 
-  // === 你的 LIFF ID ===
+  // === LIFF ===
   const LIFF_ID = '2008032262-oybPJNJN';
+  const LS_KEY = 'lineUserId';
 
-
-  // 是否啟用日期/時間的即時紅字驗證
+  // === 是否啟用日期/時間的即時紅字驗證 ===
   const ENABLE_DATE_TIME_VALIDATION = true;
 
-  // 完成頁
+  // === 完成頁 ===
   const FINISH_MAP = {
     1: '../finish/finish-1.html',
     2: '../finish/finish-2.html',
@@ -21,18 +25,54 @@ document.addEventListener('DOMContentLoaded', function () {
     8: '../finish/finish-8.html',
   };
 
-  // 初始化 LIFF
-  async function initLiff() {
+  // ---------- 動態載入 LIFF SDK ----------
+  (function loadLiffSdk() {
+    if (!window.liff) {
+      const s = document.createElement('script');
+      s.src = 'https://static.line-scdn.net/liff/edge/2/sdk.js';
+      document.head.appendChild(s);
+    }
+  })();
+
+  async function waitForLiff() {
+    if (window.liff) return;
+    await new Promise(resolve => {
+      const t = setInterval(() => {
+        if (window.liff) { clearInterval(t); resolve(); }
+      }, 50);
+    });
+  }
+
+  async function initLiffIfNeeded() {
+    await waitForLiff();
     await liff.init({ liffId: LIFF_ID });
     if (!liff.isLoggedIn()) {
-      // 登入後回到當前頁面，而不是回到 index
-      liff.login({ redirectUri: window.location.href });
+      liff.login({ redirectUri: window.location.href }); // 回到當前頁
+      return false; // 這次流程先中止，登入後會回來
+    }
+    return true;
+  }
+
+  // 先取 localStorage；取不到再用 LIFF 補抓
+  async function ensureUserId() {
+    let uid = localStorage.getItem(LS_KEY);
+    if (uid) return uid;
+
+    const ok = await initLiffIfNeeded();
+    if (!ok) return null; // 觸發 login 後會回本頁再跑一次
+
+    try {
+      const profile = await liff.getProfile();
+      uid = profile.userId || '';
+      if (uid) localStorage.setItem(LS_KEY, uid);
+      return uid;
+    } catch (err) {
+      console.error('getProfile 失敗：', err);
+      return null;
     }
   }
-  
-  initLiff();
 
-  // 工具：yyyy-mm-dd
+  // ---------- 工具 ----------
   function toYMD(d) {
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -40,14 +80,12 @@ document.addEventListener('DOMContentLoaded', function () {
     return `${y}-${m}-${day}`;
   }
 
-  // 驗證用：兩天後～兩個月內
   const now = new Date();
   const minDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 2);
   const maxDate = new Date(now.getFullYear(), now.getMonth() + 2, now.getDate());
   const MIN_STR = toYMD(minDate);
   const MAX_STR = toYMD(maxDate);
 
-  // 把檔案轉 Base64
   function fileToBase64(file) {
     return new Promise((resolve, reject) => {
       const r = new FileReader();
@@ -57,7 +95,80 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // 掃描 form1 ~ form8
+  // ---------- 日期/時間驗證 ----------
+  function makeValidators(form) {
+    const dateInput = form.querySelector('input[type="date"]');
+    const timeInput = form.querySelector('input[type="time"]');
+
+    if (dateInput) { dateInput.min = MIN_STR; dateInput.max = MAX_STR; }
+
+    // 紅字提示區
+    let dateWarning = form.querySelector('.date-warning');
+    if (!dateWarning && dateInput) {
+      dateWarning = document.createElement('div');
+      dateWarning.className = 'date-warning';
+      dateWarning.style.color = 'red';
+      dateWarning.style.fontSize = '0.9rem';
+      dateInput.insertAdjacentElement('afterend', dateWarning);
+    }
+    let timeWarning = form.querySelector('.time-warning');
+    if (!timeWarning && timeInput) {
+      timeWarning = document.createElement('div');
+      timeWarning.className = 'time-warning';
+      timeWarning.style.color = 'red';
+      timeWarning.style.fontSize = '0.9rem';
+      timeInput.insertAdjacentElement('afterend', timeWarning);
+    }
+
+    function validateDateOnly() {
+      if (!ENABLE_DATE_TIME_VALIDATION || !dateInput) return true;
+      const v = dateInput.value;
+      if (!v) { if (dateWarning) dateWarning.textContent = ''; return false; }
+      if (v < MIN_STR || v > MAX_STR) {
+        if (dateWarning) dateWarning.textContent = `申請日期需為「兩天後～兩個月內」（${MIN_STR}～${MAX_STR}）。`;
+        return false;
+      }
+      const d = new Date(v + 'T00:00:00');
+      const day = d.getDay(); // 0=日,6=六
+      if (day === 0 || day === 6) {
+        if (dateWarning) dateWarning.textContent = '申請日期不受理週六、週日。';
+        return false;
+      }
+      if (dateWarning) dateWarning.textContent = '';
+      return true;
+    }
+
+    function validateDateTime() {
+      if (!ENABLE_DATE_TIME_VALIDATION) return true;
+      const dateOK = validateDateOnly();
+      if (!dateOK) return false;
+      if (!timeInput || !timeInput.value) { if (timeWarning) timeWarning.textContent = ''; return false; }
+
+      const selected = new Date(`${dateInput.value}T${timeInput.value}`);
+      const day = selected.getDay();
+      const hour = selected.getHours();
+      const minute = selected.getMinutes();
+
+      const isWeekday = day >= 1 && day <= 5;
+      const isBusinessHour =
+        (hour > 8 || (hour === 8 && minute >= 0)) &&
+        (hour < 17 || (hour === 17 && minute === 0));
+
+      if (!isWeekday || !isBusinessHour) {
+        if (timeWarning) timeWarning.textContent = '請選擇星期一～五的 08:00 至 17:00（含 17:00）。';
+        return false;
+      }
+      if (timeWarning) timeWarning.textContent = '';
+      return true;
+    }
+
+    if (dateInput) ['input','change','blur'].forEach(evt => dateInput.addEventListener(evt, validateDateOnly));
+    if (timeInput) ['input','change','blur'].forEach(evt => timeInput.addEventListener(evt, validateDateTime));
+
+    return { validateDateTime, dateInput, timeInput };
+  }
+
+  // ---------- 掃描 form1 ~ form8 ----------
   for (let i = 1; i <= 8; i++) {
     const form = document.getElementById(`form${i}`);
     if (!form) continue;
@@ -69,27 +180,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     form.noValidate = true;
 
-    const dateInput = form.querySelector('input[type="date"]');
-    const timeInput = form.querySelector('input[type="time"]');
-
-    if (dateInput) { dateInput.min = MIN_STR; dateInput.max = MAX_STR; }
-
-    // 驗證函式（略，跟你原來相同，這裡省略重複程式碼）
-    // ...
+    const { validateDateTime, dateInput, timeInput } = makeValidators(form);
 
     // 送出
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
 
-      // === 新增：取得 LINE userId ===
-      let lineUserId = '';
-      try {
-        const profile = await liff.getProfile();
-        lineUserId = profile.userId;
-      } catch (err) {
-        console.error('無法取得 LINE userId:', err);
+      if (ENABLE_DATE_TIME_VALIDATION && (dateInput || timeInput)) {
+        if (typeof validateDateTime === 'function' && !validateDateTime()) return;
       }
 
+      // 狀態顯示
       const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
       let statusEl = form.querySelector('.submit-status');
       if (!statusEl) {
@@ -105,7 +206,6 @@ document.addEventListener('DOMContentLoaded', function () {
           form.appendChild(statusEl);
         }
       }
-
       if (submitBtn) submitBtn.disabled = true;
       let dots = 0;
       statusEl.textContent = '資料送出中';
@@ -114,7 +214,16 @@ document.addEventListener('DOMContentLoaded', function () {
         statusEl.textContent = '資料送出中' + '.'.repeat(dots);
       }, 320);
 
-      // 收集欄位
+      // 先保證拿到 userId（localStorage 或 LIFF）
+      const lineUserId = await ensureUserId();
+      if (!lineUserId) {
+        clearInterval(anim);
+        statusEl.textContent = '正在登入 LINE，請稍候…';
+        if (submitBtn) submitBtn.disabled = false;
+        return; // 登入後回本頁再送
+      }
+
+      // 收集非檔案欄位
       const fields = {};
       form.querySelectorAll('input, select, textarea').forEach(el => {
         if (!el.name || el.disabled || el.type === 'file') return;
@@ -151,8 +260,9 @@ document.addEventListener('DOMContentLoaded', function () {
         payload.append(field + '_name', name);
         payload.append(field + '_type', type);
       });
-      if (lineUserId) payload.set('lineUserId', lineUserId); // ★ 把 userId 一起送給 GAS
+      payload.set('lineUserId', lineUserId); // ★ 必帶
 
+      // 送出
       try {
         const r = await fetch(GAS_ENDPOINT, {
           method: 'POST',
@@ -168,6 +278,7 @@ document.addEventListener('DOMContentLoaded', function () {
           throw new Error(data && data.error ? data.error : `HTTP ${r.status}`);
         }
       } catch (err) {
+        // ★ CORS/redirect 問題時的後備：fire-and-forget
         await fetch(GAS_ENDPOINT, {
           method: 'POST',
           mode: 'no-cors',
