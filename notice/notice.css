@@ -7,8 +7,6 @@ body {
 
   .wrapper {
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
   }
 
   header {
@@ -19,7 +17,6 @@ body {
   }
 
   main {
-    flex-grow: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -69,6 +66,7 @@ body {
     text-align: center;
     font-size: 0.9rem;
     padding: 1.5rem 1rem;
+    margin: 0;
   }
 
   .footer-info {
@@ -85,3 +83,50 @@ body {
   .notice-box h2 {
 text-align: center;
 }
+
+  /* 手機版 RWD */
+  @media (max-width: 768px) {
+    .wrapper {
+      min-height: 100vh;
+    }
+    
+    main {
+      padding: 1rem 0.5rem;
+    }
+    
+    .notice-box {
+      padding: 1.5rem 1rem;
+      margin: 0;
+    }
+    
+    footer {
+      padding: 1rem 0.5rem;
+      margin: 0;
+    }
+    
+    .footer-info {
+      padding: 0;
+      margin: 0;
+    }
+  }
+
+  @media (max-width: 480px) {
+    main {
+      padding: 0.8rem 0.3rem;
+    }
+    
+    .notice-box {
+      padding: 1.2rem 0.8rem;
+      margin: 0;
+    }
+    
+    footer {
+      padding: 0.8rem 0.3rem;
+      margin: 0;
+    }
+    
+    .footer-info {
+      padding: 0;
+      margin: 0;
+    }
+  }

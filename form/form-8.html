@@ -32,8 +32,9 @@
       <label><input type="radio" name="age" value="65歲以上"> 65歲以上</label>
     </fieldset>
 
-    <label for="phone">連絡電話：</label>
-    <input type="tel" id="phone" name="phone" required>
+    <label for="phone">手機號碼：</label>
+    <input type="tel" id="phone" name="phone" required pattern="09\d{8}" inputmode="numeric" maxlength="10" title="請輸入 09 開頭共 10 碼手機號碼">
+    <div id="phone-validation" class="phone-validation"></div>
 
     <fieldset>
       <legend>區址：</legend>
@@ -75,14 +76,13 @@
     <label for="date">預約日期：</label>
     <input type="date" id="date" name="date" required>
 
-    <label for="time">預約時間：</label>
-    <select id="time" name="time" required>
-      <option value="">請選擇</option>
-      <option value="14:00">14:00–14:30</option>
-      <option value="14:30">14:30–15:00</option>
-      <option value="15:00">15:00–15:30</option>
-      <option value="15:30">15:30–16:00</option>
-    </select>
+    <label>預約時間：</label>
+    <div class="time-options">
+      <label><input type="radio" name="time" value="14:00" required><span>14:00–14:30</span></label>
+      <label><input type="radio" name="time" value="14:30"><span>14:30–15:00</span></label>
+      <label><input type="radio" name="time" value="15:00"><span>15:00–15:30</span></label>
+      <label><input type="radio" name="time" value="15:30"><span>15:30–16:00</span></label>
+    </div>
     <div id="timeError" class="error-msg"></div>
 
     <button type="submit">提交申請</button>

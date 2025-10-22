@@ -15,8 +15,9 @@
         <label for="name">申請人姓名：</label>
         <input type="text" id="name" name="name" required>
       
-        <label for="phone">連絡電話：</label>
-        <input type="tel" id="phone" name="phone" required>
+        <label for="phone">手機號碼：</label>
+        <input type="tel" id="phone" name="phone" required pattern="09\d{8}" inputmode="numeric" maxlength="10" title="請輸入 09 開頭共 10 碼手機號碼">
+        <div id="phone-validation" class="phone-validation"></div>
       
         <label for="upload1">檔案應用申請書上傳：</label>
         <input type="file" id="upload1" name="upload1" accept=".pdf,.jpg,.png" required>
@@ -34,8 +35,27 @@
         <label for="date">申請日期：</label>
         <input type="date" id="date" name="date" required>
       
-        <label for="time">申請時間：</label>
-        <input type="time" id="time" name="time" required>
+        <label>申請時間：</label>
+        <div class="time-options">
+          <label><input type="radio" name="time" value="08:00" required><span>08:00</span></label>
+          <label><input type="radio" name="time" value="08:30"><span>08:30</span></label>
+          <label><input type="radio" name="time" value="09:00"><span>09:00</span></label>
+          <label><input type="radio" name="time" value="09:30"><span>09:30</span></label>
+          <label><input type="radio" name="time" value="10:00"><span>10:00</span></label>
+          <label><input type="radio" name="time" value="10:30"><span>10:30</span></label>
+          <label><input type="radio" name="time" value="11:00"><span>11:00</span></label>
+          <label><input type="radio" name="time" value="11:30"><span>11:30</span></label>
+          <label><input type="radio" name="time" value="12:00"><span>12:00</span></label>
+          <label><input type="radio" name="time" value="12:30"><span>12:30</span></label>
+          <label><input type="radio" name="time" value="13:00"><span>13:00</span></label>
+          <label><input type="radio" name="time" value="13:30"><span>13:30</span></label>
+          <label><input type="radio" name="time" value="14:00"><span>14:00</span></label>
+          <label><input type="radio" name="time" value="14:30"><span>14:30</span></label>
+          <label><input type="radio" name="time" value="15:00"><span>15:00</span></label>
+          <label><input type="radio" name="time" value="15:30"><span>15:30</span></label>
+          <label><input type="radio" name="time" value="16:00"><span>16:00</span></label>
+          <label><input type="radio" name="time" value="16:30"><span>16:30</span></label>
+        </div>
         <div id="timeError" class="error-msg"></div>
         
         <button type="submit">提交申請</button>
